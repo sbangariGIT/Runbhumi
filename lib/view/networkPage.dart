@@ -6,6 +6,8 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:intl/intl.dart';
+import '../widget/widgets.dart';
 
 /*
   Code For Network Page
@@ -29,8 +31,10 @@ class _NetworkState extends State<Network> {
 
   @override
   Widget build(BuildContext context) {
+
     // TODO: make this schedule list connect to firebase
     final List scheduleList = ["hayat", "manas", "rohan", "mohit"];
+
     return Scaffold(
       appBar: AppBar(
         title: _buildTitle(context),
@@ -75,8 +79,25 @@ class _NetworkState extends State<Network> {
                   ],
                 ),
               ),
+
+            ),
+            // ChatsTabs(),
+            // TODO: replace placeholders with actual UI
+            Expanded(
+              // child: TabBarView(
+              //   children: [
+              //     PlaceholderWidget(),
+              //     PlaceholderWidget(),
+              //     PlaceholderWidget(),
+              //   ],
+              // ),
+              child: PlaceholderWidget(),
+            ),
+          ],
+
             ],
           ),
+
         ),
       ),
     );
@@ -158,6 +179,89 @@ class _teamChatsState extends State<teamChats> {
 
   Widget teamsChatRoomsList() {
     return StreamBuilder(
+
+      stream: currentFeed,
+      builder: (context, asyncSnapshot) {
+        print("Working");
+        return asyncSnapshot.hasData
+            ? asyncSnapshot.data.documents.length > 0
+                ? ListView.builder(
+                    itemCount: asyncSnapshot.data.documents.length,
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                        ),
+                        child: Card(
+                          shadowColor: Color(0x44393e46),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          elevation: 5,
+                          child: Container(
+                            width: 300,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ListTile(
+                                    isThreeLine: true,
+                                    title: Text(
+                                      asyncSnapshot.data.documents[index].get(
+                                          'eventName'), // widget.scheduleList[index][],
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    ),
+                                    subtitle: Row(
+                                      children: [
+                                        Icon(
+                                          Feather.map_pin,
+                                          size: 16.0,
+                                        ),
+                                        Text(
+                                          asyncSnapshot.data.documents[index]
+                                              .get('location'),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle1,
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: Column(
+                                      children: [
+                                        //time
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(DateFormat('E\ndd/MM\nkk:mm')
+                                                .format(asyncSnapshot
+                                                    .data.documents[index]
+                                                    .get('dateTime')
+                                                    .toDate())
+                                                .toString()),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : //if you have no events you will get this illustration
+                Container(
+                    child: Center(
+                      child: Image.asset("assets/events.png", height: 200),
+                    ),
+                  )
+            : Loader();
       stream: teamsChatRooms,
       builder: (context, snapshot) {
         return snapshot.hasData
